@@ -16,6 +16,8 @@ export default () => {
   const [openModal, setOpenModal] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
 
   const { posts, name, myPosts } = useApp();
 
@@ -36,27 +38,6 @@ export default () => {
       }
     );
     if (response.status === 201) {
-      window.location.reload();
-    }
-  };
-
-  const handleEdit = async (id, title, content) => {
-    const data = {
-      username: name,
-      created_datetime: new Date(),
-      title,
-      content,
-    };
-    const response = await axios.put(
-      `https://dev.codeleap.co.uk/careers/${id}/`,
-      data,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (response.status === 200) {
       window.location.reload();
     }
   };
@@ -98,6 +79,8 @@ export default () => {
               Title
             </Text>
             <Input
+              rounded="md"
+              size="sm"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Hello world"
@@ -109,6 +92,8 @@ export default () => {
               Content
             </Text>
             <Input
+              size="sm"
+              rounded="md"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               _placeholder={{ fontSize: "12px" }}
@@ -180,9 +165,15 @@ export default () => {
               my="10px"
             >
               <Flex justify="flex-end" gap="10px">
-                <Button onClick={() => handleEdit(id)} colorScheme="linkedin">
+                <Button
+                  onClick={() => setOpenEditModal(true)}
+                  colorScheme="linkedin"
+                >
                   <svg
-                    style={{ width: "1rem", height: "1rem" }}
+                    style={{
+                      width: "1rem",
+                      height: "1rem",
+                    }}
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -195,7 +186,10 @@ export default () => {
                     />
                   </svg>
                 </Button>
-                <Button onClick={() => handleDelete(id)} colorScheme="linkedin">
+                <Button
+                  onClick={() => setOpenDeleteModal(true)}
+                  colorScheme="linkedin"
+                >
                   <svg
                     style={{ width: "1rem", height: "1rem" }}
                     xmlns="http://www.w3.org/2000/svg"
@@ -211,6 +205,82 @@ export default () => {
                   </svg>
                 </Button>
               </Flex>
+              {openEditModal && (
+                <Flex
+                  zIndex={"999"}
+                  bgColor="#00000080"
+                  w="100%"
+                  h="100vh"
+                  position="fixed"
+                  top="0"
+                  left="0"
+                  justify="center"
+                  align="center"
+                >
+                  <Container
+                    bgColor="#fff"
+                    p="5"
+                    rounded="md"
+                    w="30rem"
+                    flexDir="column"
+                  >
+                    <Text fontWeight="bold">Are you sure?</Text>
+                    <Text my="10px">Title:</Text>
+                    <Input size="sm" rounded="md" placeholder="title" />
+                    <Text my="10px">Content</Text>
+                    <Input size="sm" rounded="md" placeholder="content" />
+                    <Flex justify="flex-end" mt="20px">
+                      <Button size="sm" onClick={() => setOpenEditModal(false)}>
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        colorScheme="green"
+                        ml="10px"
+                        onClick={() => handlePost(title, content)}
+                      >
+                        Save
+                      </Button>
+                    </Flex>
+                  </Container>
+                </Flex>
+              )}
+              {openDeleteModal && (
+                <Flex
+                  zIndex={"999"}
+                  bgColor="#00000080"
+                  w="100%"
+                  h="100vh"
+                  position="fixed"
+                  top="0"
+                  left="0"
+                  justify="center"
+                  align="center"
+                >
+                  <Container
+                    bgColor="#fff"
+                    p="5"
+                    rounded="md"
+                    w="30rem"
+                    flexDir="column"
+                  >
+                    <Text mb="20px" fontWeight="bold">
+                      Are you sure you want delete this item?
+                    </Text>
+                    <Flex gap="10px" justify="flex-end">
+                      <Button
+                        size="sm"
+                        onClick={() => setOpenDeleteModal(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button size="sm" color="#fff" colorScheme="red">
+                        Delete
+                      </Button>
+                    </Flex>
+                  </Container>
+                </Flex>
+              )}
               <Flex flexDir="column">
                 <Text fontWeight="bold">{post.title}</Text>
                 <Text>{post.content}</Text>
@@ -220,6 +290,7 @@ export default () => {
         {posts &&
           posts.map((post) => (
             <Container
+              boxShadow={"md"}
               borderWidth="3px"
               borderColor="blue.600"
               key={post.id}
